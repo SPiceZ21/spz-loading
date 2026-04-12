@@ -1,0 +1,447 @@
+@font-face {
+  font-family: 'Panchang';
+  src: url('/fonts/Panchang-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Panchang';
+  src: url('/fonts/Panchang-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Panchang';
+  src: url('/fonts/Panchang-Extrabold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Outfit';
+  src: url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+}
+
+:root {
+  --primary-orange: #FF6200;
+  --secondary-orange: #FF9F63;
+  --black: #000 000;
+  --white: #FFFFFF;
+  --hud-glass: rgba(0, 0, 0, 0.45);
+  --hud-blur: blur(12px);
+  --hud-border: rgba(255, 255, 255, 0.1);
+  --font-main: 'Outfit', sans-serif;
+  --font-accent: 'Panchang', sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  user-select: none;
+  cursor: default;
+}
+
+body {
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #000;
+  font-family: var(--font-main);
+  color: var(--white);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+/* Tips Component */
+.tips-overlay {
+  position: absolute;
+  bottom: 8.5rem; /* Just above the progress info */
+  right: 3rem;
+  width: 26rem;
+  z-index: 20;
+}
+
+.tips-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: flex-end; /* Align Pagination to the right */
+}
+
+.tip-card {
+  width: 100%;
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  position: relative;
+  text-align: right;
+}
+
+.tip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tip-title {
+  font-family: 'Panchang', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.35em;
+  color: #FF6200;
+  text-transform: uppercase;
+  opacity: 0.9;
+}
+
+.tip-description {
+  font-family: 'Panchang', sans-serif;
+  font-size: 0.85rem;
+  color: #fff;
+  line-height: 1.4;
+  font-weight: 300;
+  letter-spacing: 0.02em;
+}
+
+.tips-pagination {
+  display: flex;
+  gap: 0.4rem;
+}
+
+.pagination-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 9999px;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: all 0.3s ease;
+}
+
+.pagination-dot.active {
+  background-color: #FF6200;
+  width: 16px;
+  box-shadow: 0 0 10px rgba(255, 98, 0, 0.3);
+}
+.progress-container {
+  position: absolute;
+  bottom: 3rem;
+  left: 3rem;
+  right: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.progress-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.status-label {
+  font-size: 0.625rem; /* 10px */
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.4);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.status-text {
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+
+.progress-percentage {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.25rem;
+}
+
+.percentage-value {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  color: #fff;
+}
+
+.percentage-symbol {
+  font-size: 1.25rem;
+  color: rgba(255, 255, 255, 0.4);
+}
+
+/* Segmented Progress Bar */
+.segmented-bar {
+  display: flex;
+  gap: 4px;
+  width: 100%;
+  height: 8px;
+  position: relative;
+}
+
+.bar-segment {
+  flex: 1;
+  height: 100%;
+  background-color: rgba(255, 255, 255, 0.05);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  transform: skewX(-20deg); /* Racing skew */
+}
+
+.bar-segment.active {
+  background-color: #FF6200;
+  box-shadow: 0 0 10px rgba(255, 98, 0, 0.4);
+}
+
+.bar-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 98, 0, 0.2), transparent);
+  filter: blur(10px);
+  pointer-events: none;
+}
+
+/* Custom */
+.uppercase {
+  text-transform: uppercase;
+}
+
+/* Player Controls Component */
+.player-controls {
+  position: absolute;
+  top: 3rem;
+  right: 3rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.control-btn {
+  width: 2.5rem; /* w-10 equivalent */
+  height: 2.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.control-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.play-icon-offset {
+  transform: translateX(1px);
+}
+
+.glass {
+  background: var(--hud-glass);
+  backdrop-filter: var(--hud-blur);
+  border: 1px solid var(--hud-border);
+}
+
+.text-gradient {
+  background: linear-gradient(135deg, var(--white) 0%, var(--secondary-orange) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Animations */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+/* Branding Component */
+.branding-container {
+  position: absolute;
+  top: 3rem;
+  left: 3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  z-index: 100;
+}
+
+.branding-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.logo-section {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.branding-logo {
+  height: 4rem; /* h-16 equivalent */
+  width: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255, 98, 0, 0.3));
+}
+
+.logo-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6rem;
+  height: 6rem;
+  background-color: rgba(255, 98, 0, 0.2);
+  filter: blur(24px);
+  border-radius: 9999px;
+  z-index: -1;
+}
+
+.branding-divider {
+  width: 2px;
+  height: 3rem;
+  background: linear-gradient(to bottom, #FF6200, transparent);
+  opacity: 0.5;
+}
+
+.branding-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.branding-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  text-transform: uppercase;
+  color: #fff;
+}
+
+.branding-tagline {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.4em;
+  color: #FF6200;
+  text-transform: uppercase;
+}
+
+/* App Layout */
+.app-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  color: #fff;
+}
+
+.selection-accent::selection {
+  background-color: rgba(255, 98, 0, 0.3);
+}
+
+.hud-layer {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.controls-wrapper {
+  pointer-events: auto;
+}
+
+.vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.6) 100%);
+  box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+  z-index: 5;
+}
+
+/* Video Background */
+.video-background-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: -10;
+  pointer-events: none;
+}
+
+.video-player-frame {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100vw;
+  height: 100vh;
+  transform: translate(-50%, -50%);
+}
+
+/* Ensure Aspect Ratio coverage */
+@media (min-aspect-ratio: 16/9) {
+  .video-player-frame {
+    height: 56.25vw; /* 9/16 * 100 */
+  }
+}
+
+@media (max-aspect-ratio: 16/9) {
+  .video-player-frame {
+    width: 177.78vh; /* 16/9 * 100 */
+  }
+}
+
+/* Force larger scale if needed to avoid black bars */
+.video-player-frame {
+    width: 120vw;
+    height: 120vh;
+}
+
+.video-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  background-image: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+/* Base Utilities */
+.glass {
+  background: var(--hud-glass);
+  backdrop-filter: var(--hud-blur);
+  border: 1px solid var(--hud-border);
+}
