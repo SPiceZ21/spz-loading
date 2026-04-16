@@ -43,7 +43,7 @@ const Tips: React.FC = () => {
             
             {/* Pagination dots */}
             <div className="tips-pagination">
-                {config.items.map((_, i) => (
+                {config.items.map((_: any, i: number) => (
                     <div 
                         key={i} 
                         className={`pagination-dot ${i === index ? 'active' : ''}`}

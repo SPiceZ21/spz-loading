@@ -9,5 +9,6 @@ author 'SPiceZ-Core'
 loadscreen 'ui/dist/index.html'
 
 files {
-  'ui/dist/**',
+  'ui/dist/index.html',
+  'ui/dist/**/*',
 }

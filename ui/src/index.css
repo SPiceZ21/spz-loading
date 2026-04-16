@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
+
 @font-face {
   font-family: 'Panchang';
   src: url('/fonts/Panchang-Bold.ttf') format('truetype');
@@ -19,15 +21,10 @@
   font-style: normal;
 }
 
-@font-face {
-  font-family: 'Outfit';
-  src: url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
-}
-
 :root {
   --primary-orange: #FF6200;
   --secondary-orange: #FF9F63;
-  --black: #000 000;
+  --black: #000000;
   --white: #FFFFFF;
   --hud-glass: rgba(0, 0, 0, 0.45);
   --hud-blur: blur(12px);
