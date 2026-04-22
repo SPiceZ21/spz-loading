@@ -36,6 +36,7 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
         if (playerRef.current) return;
         
         new window.YT.Player('yt-player', {
+            host: 'https://www.youtube-nocookie.com',
             videoId: config.videoId || 'dQw4w9WgXcQ',
             playerVars: {
                 autoplay: 1,
@@ -49,7 +50,6 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
                 rel: 0,
                 showinfo: 0,
                 mute: 1,
-                origin: 'https://www.youtube.com'
             },
             events: {
                 onReady: onPlayerReady,
@@ -63,7 +63,11 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
             const tag = document.createElement('script');
             tag.src = "https://www.youtube.com/iframe_api";
             const firstScriptTag = document.getElementsByTagName('script')[0];
-            firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+            if (firstScriptTag && firstScriptTag.parentNode) {
+                firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+            } else {
+                document.head.appendChild(tag);
+            }
             
             window.onYouTubeIframeAPIReady = initPlayer;
         } else if (window.YT && window.YT.Player) {
