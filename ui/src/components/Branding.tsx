@@ -13,7 +13,7 @@ const Branding: React.FC = () => {
             >
                 <div className="logo-section">
                     <img 
-                        src="/Logo/long_spz_transparent.png" 
+                        src="Logo/long_spz_transparent.png" 
                         alt="Logo" 
                         className="branding-logo"
                     />
