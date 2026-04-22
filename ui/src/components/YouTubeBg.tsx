@@ -22,7 +22,7 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
         if (playerRef.current) return;
         
         new window.YT.Player('yt-player', {
-            videoId: config.videoId || 'YeZrFMh6FiM',
+            videoId: config.videoId || 'z0p06GfL-1U',
             playerVars: {
                 autoplay: 1,
                 controls: 0,
@@ -35,7 +35,6 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
                 rel: 0,
                 showinfo: 0,
                 mute: mute ? 1 : 0,
-                origin: window.location.origin
             },
             events: {
                 onReady: onPlayerReady,
