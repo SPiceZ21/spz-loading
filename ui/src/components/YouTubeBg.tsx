@@ -18,6 +18,20 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
   const playerRef = useRef<any>(null);
   const config = window.LoadscreenConfig?.youtube || {};
 
+    const onPlayerReady = (event: any) => {
+        playerRef.current = event.target;
+        if (mute) playerRef.current.mute();
+        playerRef.current.setVolume(volume);
+        if (play) playerRef.current.playVideo();
+    };
+
+    const onPlayerStateChange = (event: any) => {
+        // Loop video if it ends
+        if (event.data === window.YT.PlayerState.ENDED) {
+            playerRef.current.playVideo();
+        }
+    };
+
     const initPlayer = () => {
         if (playerRef.current) return;
         
