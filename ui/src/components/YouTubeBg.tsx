@@ -36,8 +36,8 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
         if (playerRef.current) return;
         
         new window.YT.Player('yt-player', {
-            host: 'https://www.youtube-nocookie.com',
-            videoId: config.videoId || 'dQw4w9WgXcQ',
+            host: 'https://www.youtube.com',
+            videoId: config.videoId || 'vHAsZ2hOltg',
             playerVars: {
                 autoplay: 1,
                 controls: 0,
