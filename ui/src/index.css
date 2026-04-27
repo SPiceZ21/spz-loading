@@ -22,15 +22,21 @@
 }
 
 :root {
-  --primary-orange: #FF6200;
-  --secondary-orange: #FF9F63;
+  /* Canonical tokens (match spz-ui/spz-ui.css) */
+  --color-primary:   var(--color-primary);
+  --color-secondary: #FF9F63;
+
+  /* Legacy aliases */
+  --primary-orange:  var(--color-primary);
+  --secondary-orange:var(--color-secondary);
   --black: #000000;
   --white: #FFFFFF;
   --hud-glass: rgba(0, 0, 0, 0.45);
   --hud-blur: blur(12px);
   --hud-border: rgba(255, 255, 255, 0.1);
-  --font-main: 'Outfit', sans-serif;
+  --font-main:   'Outfit', sans-serif;
   --font-accent: 'Panchang', sans-serif;
+  --font-display:'Panchang', sans-serif;
 }
 
 * {
@@ -98,7 +104,7 @@ body {
   font-size: 0.65rem;
   font-weight: 800;
   letter-spacing: 0.35em;
-  color: #FF6200;
+  color: var(--color-primary);
   text-transform: uppercase;
   opacity: 0.9;
 }
@@ -126,7 +132,7 @@ body {
 }
 
 .pagination-dot.active {
-  background-color: #FF6200;
+  background-color: var(--color-primary);
   width: 16px;
   box-shadow: 0 0 10px rgba(255, 98, 0, 0.3);
 }
@@ -204,7 +210,7 @@ body {
 }
 
 .bar-segment.active {
-  background-color: #FF6200;
+  background-color: var(--color-primary);
   box-shadow: 0 0 10px rgba(255, 98, 0, 0.4);
 }
 
@@ -234,19 +240,21 @@ body {
 }
 
 .control-btn {
-  width: 2.5rem; /* w-10 equivalent */
+  width: 2.5rem;
   height: 2.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 9999px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  background: none;
+  border: none;
+  color: inherit;
+  /* CSS replacement for framer-motion whileHover/whileTap */
+  transition: background-color 0.2s ease, transform 0.15s ease;
 }
-
-.control-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
+.control-btn:hover  { background-color: rgba(255, 255, 255, 0.1); transform: scale(1.05); }
+.control-btn:active { transform: scale(0.95); }
 
 .play-icon-offset {
   transform: translateX(1px);
@@ -287,10 +295,16 @@ body {
   z-index: 100;
 }
 
+/* CSS replacement for framer-motion initial/animate entrance */
 .branding-wrapper {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  animation: branding-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+@keyframes branding-enter {
+  from { opacity: 0; transform: translateX(-20px); }
+  to   { opacity: 1; transform: translateX(0); }
 }
 
 .logo-section {
@@ -323,7 +337,7 @@ body {
 .branding-divider {
   width: 2px;
   height: 3rem;
-  background: linear-gradient(to bottom, #FF6200, transparent);
+  background: linear-gradient(to bottom, var(--color-primary), transparent);
   opacity: 0.5;
 }
 
@@ -345,7 +359,7 @@ body {
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.4em;
-  color: #FF6200;
+  color: var(--color-primary);
   text-transform: uppercase;
 }
 
@@ -435,6 +449,12 @@ body {
   background-color: rgba(0, 0, 0, 0.4);
   background-image: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
 }
+
+/* ── Utility classes (mirrors spz-ui tokens) ── */
+.font-display { font-family: var(--font-display) !important; }
+.font-accent  { font-family: var(--font-accent)  !important; }
+.text-primary { color: var(--color-primary) !important; }
+.uppercase    { text-transform: uppercase; }
 
 /* Base Utilities */
 .glass {

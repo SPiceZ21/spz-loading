@@ -1,5 +1,4 @@
 import React from 'react';
-import { motion } from 'framer-motion';
 import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 
 interface ControlsProps {
@@ -12,23 +11,12 @@ interface ControlsProps {
 const Controls: React.FC<ControlsProps> = ({ playing, muted, onTogglePlay, onToggleMute }) => {
     return (
         <div className="player-controls">
-            <motion.div 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onTogglePlay}
-                className="control-btn glass"
-            >
+            <button className="control-btn glass" onClick={onTogglePlay} aria-label="Toggle play">
                 {playing ? <Pause size={18} /> : <Play size={18} className="play-icon-offset" />}
-            </motion.div>
-            
-            <motion.div 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={onToggleMute}
-                className="control-btn glass"
-            >
+            </button>
+            <button className="control-btn glass" onClick={onToggleMute} aria-label="Toggle mute">
                 {muted ? <VolumeX size={18} /> : <Volume2 size={18} />}
-            </motion.div>
+            </button>
         </div>
     );
 };
