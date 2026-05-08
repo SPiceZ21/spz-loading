@@ -1,5 +1,6 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Tips from './Tips';
 
 interface ProgressBarProps {
     progress: number;
@@ -7,49 +8,28 @@ interface ProgressBarProps {
 }
 
 const ProgressBar: React.FC<ProgressBarProps> = ({ progress, logLine }) => {
-    // 50 segments for a smooth but distinct segmented look
-    const segments = Array.from({ length: 50 });
+    const segments = Array.from({ length: 40 });
     
     return (
         <div className="progress-container">
             <div className="progress-info">
-                <div className="progress-status">
-                    <span className="status-label">SYSTEM INITIALIZATION</span>
-                    <motion.span 
-                        key={logLine}
-                        initial={{ opacity: 0, y: 5 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="status-text uppercase"
-                    >
-                        {logLine}
-                    </motion.span>
+                <div className="integrated-tips">
+                    <Tips small />
                 </div>
+
                 <div className="progress-percentage">
-                    <span className="percentage-value" style={{ fontFamily: 'Panchang' }}>
+                    <span className="percentage-value">
                         {Math.round(progress)}<span className="percentage-symbol">%</span>
                     </span>
                 </div>
             </div>
             
             <div className="segmented-bar">
-                {segments.map((_, i) => {
-                    const threshold = (i / segments.length) * 100;
-                    const isActive = progress > threshold;
-                    
-                    return (
-                        <div 
-                            key={i} 
-                            className={`bar-segment ${isActive ? 'active' : ''}`}
-                            style={{ 
-                                transitionDelay: isActive ? `${i * 10}ms` : '0ms' 
-                            }}
-                        />
-                    );
-                })}
-                {/* Glow layer */}
                 <motion.div 
-                    className="bar-glow"
-                    style={{ width: `${progress}%` }}
+                    className="bar-fill"
+                    initial={{ width: 0 }}
+                    animate={{ width: `${progress}%` }}
+                    transition={{ duration: 0.5, ease: "easeOut" }}
                 />
             </div>
         </div>

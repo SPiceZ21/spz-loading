@@ -18,21 +18,20 @@ const App: React.FC = () => {
 
   return (
     <div className="app-container selection-accent">
-      {/* Background Media */}
-      {config.mediaType === 'youtube' && (
-        <YouTubeBg 
-          play={playing}
-          mute={muted}
-          volume={volume}
-        />
-      )}
+      <YouTubeBg 
+        play={playing}
+        mute={muted}
+        volume={volume}
+      />
+      
+      {/* Cinematic Overlays */}
+      <div className="scanlines" />
+      <div className="crt-overlay" />
       
       {/* HUD Layer */}
       <div className="hud-layer">
-        <Branding />
-        
-        {/* Interactive elements must re-enable pointer events */}
-        <div className="controls-wrapper">
+        <div className="top-section">
+          <Branding />
           <Controls 
             playing={playing}
             muted={muted}
@@ -41,16 +40,12 @@ const App: React.FC = () => {
           />
         </div>
 
-        {/* Tips Box */}
-        <div className="tips-overlay">
-            <Tips />
+        <div className="bottom-section">
+          <div className="bottom-content">
+             <ProgressBar progress={progress} logLine={logLine} />
+          </div>
         </div>
-        
-        <ProgressBar progress={progress} logLine={logLine} />
       </div>
-
-      {/* Decorative vignette */}
-      <div className="vignette" />
     </div>
   );
 };
