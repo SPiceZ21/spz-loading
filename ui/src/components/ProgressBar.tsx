@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React from 'react';
+import { motion } from 'framer-motion';
 import Tips from './Tips';
 
 interface ProgressBarProps {
@@ -7,9 +7,7 @@ interface ProgressBarProps {
     logLine: string;
 }
 
-const ProgressBar: React.FC<ProgressBarProps> = ({ progress, logLine }) => {
-    const segments = Array.from({ length: 40 });
-    
+const ProgressBar: React.FC<ProgressBarProps> = ({ progress }) => {
     return (
         <div className="progress-container">
             <div className="progress-info">

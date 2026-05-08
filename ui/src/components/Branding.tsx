@@ -20,7 +20,26 @@ const Branding: React.FC = () => {
                 <div className="logo-glow" />
             </div>
 
+            <div className="branding-divider" />
 
+            <div className="branding-text">
+                <motion.h1
+                    initial={{ opacity: 0, filter: 'blur(10px)' }}
+                    animate={{ opacity: 1, filter: 'blur(0px)' }}
+                    transition={{ delay: 0.3, duration: 1 }}
+                    className="branding-title font-accent"
+                >
+                    {config.serverName || 'SPiceZ RACE CORE'}
+                </motion.h1>
+                <motion.span 
+                    initial={{ opacity: 0, letterSpacing: '1em' }}
+                    animate={{ opacity: 1, letterSpacing: '0.4em' }}
+                    transition={{ delay: 0.6, duration: 1 }}
+                    className="branding-tagline"
+                >
+                    {config.tagline || 'PREMIUM RACING EXPERIENCE'}
+                </motion.span>
+            </div>
         </motion.div>
     );
 };
