@@ -5,7 +5,6 @@ import Branding from './components/Branding';
 import ProgressBar from './components/ProgressBar';
 import Controls from './components/Controls';
 
-import Tips from './components/Tips';
 
 const App: React.FC = () => {
   const { progress, logLine } = useFiveM();
