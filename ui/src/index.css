@@ -22,21 +22,19 @@
 }
 
 :root {
-  /* Canonical tokens (match spz-ui/spz-ui.css) */
-  --color-primary:   var(--color-primary);
-  --color-secondary: #FF9F63;
+  /* Premium Design System — SPZ Palette */
+  --spz-orange: #FF6200;
+  --spz-orange-glow: rgba(255, 98, 0, 0.4);
+  --spz-bg: #07080A;
+  --spz-surface: rgba(14, 16, 20, 0.85);
+  --spz-border: rgba(255, 255, 255, 0.08);
+  --spz-line: rgba(255, 255, 255, 0.04);
 
-  /* Legacy aliases */
-  --primary-orange:  var(--color-primary);
-  --secondary-orange:var(--color-secondary);
-  --black: #000000;
-  --white: #FFFFFF;
-  --hud-glass: rgba(0, 0, 0, 0.45);
-  --hud-blur: blur(12px);
-  --hud-border: rgba(255, 255, 255, 0.1);
-  --font-main:   'Outfit', sans-serif;
+  --font-main: 'Outfit', sans-serif;
   --font-accent: 'Panchang', sans-serif;
-  --font-display:'Panchang', sans-serif;
+
+  --hud-blur: blur(20px);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 * {
@@ -44,7 +42,6 @@
   margin: 0;
   padding: 0;
   user-select: none;
-  cursor: default;
 }
 
 body {
@@ -52,175 +49,195 @@ body {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background-color: #000;
+  background-color: var(--spz-bg);
   font-family: var(--font-main);
-  color: var(--white);
+  color: #fff;
   -webkit-font-smoothing: antialiased;
 }
 
-#root {
+/* ── HUD Effects ─────────────────────────────────────────────────────────── */
+.scanlines {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%,
+      rgba(0, 0, 0, 0.1) 50%),
+    linear-gradient(90deg,
+      rgba(255, 0, 0, 0.02),
+      rgba(0, 255, 0, 0.01),
+      rgba(0, 0, 255, 0.02));
+  background-size: 100% 3px, 3px 100%;
+  pointer-events: none;
+  opacity: 0.4;
+}
+
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%);
+  box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.8);
+}
+
+/* ── HUD Layer ───────────────────────────────────────────────────────────── */
+.hud-layer {
+  position: relative;
+  z-index: 10;
   width: 100%;
   height: 100%;
+  pointer-events: none;
+  padding: 4rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.top-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  pointer-events: auto;
+}
+
+.bottom-section {
+  display: flex;
+  flex-direction: column;
+  gap: 3rem;
+  pointer-events: auto;
+  align-items: center; /* Center the tips */
+}
+
+.bottom-content {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: flex-end;
 }
 
 /* Tips Component */
-.tips-overlay {
-  position: absolute;
-  bottom: 8.5rem; /* Just above the progress info */
-  right: 3rem;
-  width: 26rem;
-  z-index: 20;
-}
-
 .tips-container {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  align-items: flex-end; /* Align Pagination to the right */
-}
-
-.tip-card {
+  gap: 1.5rem;
   width: 100%;
-  padding: 1.25rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  border-radius: 4px;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  position: relative;
-  text-align: right;
+  max-width: 45rem; /* Center the tips box with a max-width */
 }
 
-.tip-content {
+.tips-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-family: var(--font-accent);
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  color: rgba(255, 255, 255, 0.3);
+  margin-bottom: -0.5rem;
+}
+
+.tips-small {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.tip-title {
-  font-family: 'Panchang', sans-serif;
+.tips-header-small {
+  font-family: var(--font-accent);
   font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  color: var(--spz-orange);
   font-weight: 800;
-  letter-spacing: 0.35em;
-  color: var(--color-primary);
   text-transform: uppercase;
-  opacity: 0.9;
 }
 
-.tip-description {
-  font-family: 'Panchang', sans-serif;
-  font-size: 0.85rem;
-  color: #fff;
-  line-height: 1.4;
+.tip-description-small {
+  font-family: var(--font-accent);
+  font-size: 0.9rem;
   font-weight: 300;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.7);
+  max-width: 40rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.tips-pagination {
-  display: flex;
-  gap: 0.4rem;
+.tip-card {
+  background: var(--spz-surface);
+  backdrop-filter: var(--hud-blur);
+  border: 1px solid var(--spz-border);
+  padding: 2rem;
+  border-radius: 12px; /* Smoother corners */
+  position: relative;
+  overflow: hidden;
+  text-align: center; /* Center tip text */
 }
 
-.pagination-dot {
-  width: 4px;
-  height: 4px;
-  border-radius: 9999px;
-  background-color: rgba(255, 255, 255, 0.1);
-  transition: all 0.3s ease;
-}
-
-.pagination-dot.active {
-  background-color: var(--color-primary);
-  width: 16px;
-  box-shadow: 0 0 10px rgba(255, 98, 0, 0.3);
-}
+/* Progress bar revamp to full width and new style */
 .progress-container {
-  position: absolute;
-  bottom: 3rem;
-  left: 3rem;
-  right: 3rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.5rem;
+  width: 100%;
 }
 
 .progress-info {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
+  gap: 2rem;
 }
 
-.progress-status {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.status-label {
-  font-size: 0.625rem; /* 10px */
-  letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.4);
-  font-weight: 700;
-  text-transform: uppercase;
-}
-
-.status-text {
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: -0.025em;
-  color: #fff;
-}
-
-.progress-percentage {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.25rem;
+.integrated-tips {
+  flex: 1;
+  min-width: 0;
 }
 
 .percentage-value {
-  font-size: 2.25rem;
+  font-family: var(--font-accent);
+  font-size: 3rem;
   font-weight: 800;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.02em;
   color: #fff;
+  line-height: 1;
 }
 
 .percentage-symbol {
-  font-size: 1.25rem;
-  color: rgba(255, 255, 255, 0.4);
+  font-size: 1.5rem;
+  color: var(--spz-orange);
+  margin-left: 0.25rem;
 }
 
-/* Segmented Progress Bar */
 .segmented-bar {
   display: flex;
-  gap: 4px;
   width: 100%;
-  height: 8px;
+  height: 8px; 
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 4px;
   position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-.bar-segment {
-  flex: 1;
+.bar-fill {
   height: 100%;
-  background-color: rgba(255, 255, 255, 0.05);
-  transition: background-color 0.3s ease, box-shadow 0.3s ease;
-  transform: skewX(-20deg); /* Racing skew */
+  background: linear-gradient(90deg, var(--spz-orange), #FF8C00);
+  box-shadow: 0 0 20px var(--spz-orange-glow);
+  transition: width 0.5s var(--ease-out-expo);
 }
 
-.bar-segment.active {
-  background-color: var(--color-primary);
-  box-shadow: 0 0 10px rgba(255, 98, 0, 0.4);
-}
-
-.bar-glow {
+/* Accents for the bar */
+.segmented-bar::after {
+  content: '';
   position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255, 98, 0, 0.2), transparent);
-  filter: blur(10px);
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 40px,
+    rgba(0, 0, 0, 0.3) 40px,
+    rgba(0, 0, 0, 0.3) 42px
+  );
   pointer-events: none;
 }
 
@@ -231,39 +248,37 @@ body {
 
 /* Player Controls Component */
 .player-controls {
-  position: absolute;
-  top: 3rem;
-  right: 3rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .control-btn {
-  width: 2.5rem;
-  height: 2.5rem;
+  width: 2.75rem;
+  height: 2.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 9999px;
+  border-radius: 4px;
   cursor: pointer;
-  background: none;
-  border: none;
-  color: inherit;
-  /* CSS replacement for framer-motion whileHover/whileTap */
-  transition: background-color 0.2s ease, transform 0.15s ease;
+  background: var(--spz-surface);
+  backdrop-filter: var(--hud-blur);
+  border: 1px solid var(--spz-border);
+  color: rgba(255, 255, 255, 0.6);
+  transition: all 0.2s var(--ease-out-expo);
 }
-.control-btn:hover  { background-color: rgba(255, 255, 255, 0.1); transform: scale(1.05); }
-.control-btn:active { transform: scale(0.95); }
 
-.play-icon-offset {
-  transform: translateX(1px);
+.control-btn:hover {
+  background: var(--spz-orange);
+  color: #fff;
+  border-color: var(--spz-orange);
+  box-shadow: 0 0 15px var(--spz-orange-glow);
 }
 
 .glass {
-  background: var(--hud-glass);
+  background: var(--spz-surface);
   backdrop-filter: var(--hud-blur);
-  border: 1px solid var(--hud-border);
+  border: 1px solid var(--spz-border);
 }
 
 .text-gradient {
@@ -274,8 +289,13 @@ body {
 
 /* Animations */
 @keyframes shimmer {
-  0% { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .shimmer {
@@ -284,27 +304,10 @@ body {
   animation: shimmer 2s infinite;
 }
 
-/* Branding Component */
-.branding-container {
-  position: absolute;
-  top: 3rem;
-  left: 3rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-  z-index: 100;
-}
-
-/* CSS replacement for framer-motion initial/animate entrance */
 .branding-wrapper {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
-  animation: branding-enter 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-@keyframes branding-enter {
-  from { opacity: 0; transform: translateX(-20px); }
-  to   { opacity: 1; transform: translateX(0); }
+  gap: 2rem;
 }
 
 .logo-section {
@@ -315,10 +318,10 @@ body {
 }
 
 .branding-logo {
-  height: 4rem; /* h-16 equivalent */
+  height: 1.8rem;
   width: auto;
   object-fit: contain;
-  filter: drop-shadow(0 0 10px rgba(255, 98, 0, 0.3));
+  filter: drop-shadow(0 0 20px var(--spz-orange-glow));
 }
 
 .logo-glow {
@@ -326,41 +329,45 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 6rem;
-  height: 6rem;
-  background-color: rgba(255, 98, 0, 0.2);
-  filter: blur(24px);
+  width: 8rem;
+  height: 8rem;
+  background-color: var(--spz-orange-glow);
+  filter: blur(40px);
   border-radius: 9999px;
   z-index: -1;
 }
 
 .branding-divider {
-  width: 2px;
-  height: 3rem;
-  background: linear-gradient(to bottom, var(--color-primary), transparent);
-  opacity: 0.5;
+  width: 1px;
+  height: 4rem;
+  background: linear-gradient(to bottom, transparent, var(--spz-orange), transparent);
+  opacity: 0.4;
 }
 
 .branding-text {
   display: flex;
   flex-direction: column;
+  gap: 0.25rem;
 }
 
 .branding-title {
-  font-size: 2.25rem;
+  font-size: 3rem;
   font-weight: 800;
-  letter-spacing: -0.05em;
+  letter-spacing: -0.02em;
   line-height: 1;
   text-transform: uppercase;
   color: #fff;
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
 }
 
 .branding-tagline {
-  font-size: 0.75rem;
+  font-family: var(--font-accent);
+  font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.4em;
-  color: var(--color-primary);
+  color: var(--spz-orange);
   text-transform: uppercase;
+  opacity: 0.8;
 }
 
 /* App Layout */
@@ -395,8 +402,8 @@ body {
   right: 0;
   bottom: 0;
   pointer-events: none;
-  background: radial-gradient(circle at center, transparent 0%, rgba(0,0,0,0.6) 100%);
-  box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+  background: radial-gradient(circle at center, transparent 0%, rgba(0, 0, 0, 0.6) 100%);
+  box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.8);
   z-index: 5;
 }
 
@@ -424,20 +431,22 @@ body {
 /* Ensure Aspect Ratio coverage */
 @media (min-aspect-ratio: 16/9) {
   .video-player-frame {
-    height: 56.25vw; /* 9/16 * 100 */
+    height: 56.25vw;
+    /* 9/16 * 100 */
   }
 }
 
 @media (max-aspect-ratio: 16/9) {
   .video-player-frame {
-    width: 177.78vh; /* 16/9 * 100 */
+    width: 177.78vh;
+    /* 16/9 * 100 */
   }
 }
 
 /* Force larger scale if needed to avoid black bars */
 .video-player-frame {
-    width: 120vw;
-    height: 120vh;
+  width: 120vw;
+  height: 120vh;
 }
 
 .video-overlay {
@@ -451,10 +460,21 @@ body {
 }
 
 /* ── Utility classes (mirrors spz-ui tokens) ── */
-.font-display { font-family: var(--font-display) !important; }
-.font-accent  { font-family: var(--font-accent)  !important; }
-.text-primary { color: var(--color-primary) !important; }
-.uppercase    { text-transform: uppercase; }
+.font-display {
+  font-family: var(--font-display) !important;
+}
+
+.font-accent {
+  font-family: var(--font-accent) !important;
+}
+
+.text-primary {
+  color: var(--color-primary) !important;
+}
+
+.uppercase {
+  text-transform: uppercase;
+}
 
 /* Base Utilities */
 .glass {
