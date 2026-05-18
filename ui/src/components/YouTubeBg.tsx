@@ -20,9 +20,15 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
 
     const onPlayerReady = (event: any) => {
         playerRef.current = event.target;
-        if (mute) playerRef.current.mute();
+        if (mute) {
+            playerRef.current.mute();
+        } else {
+            playerRef.current.unMute();
+        }
         playerRef.current.setVolume(volume);
-        if (play) playerRef.current.playVideo();
+        if (play) {
+            playerRef.current.playVideo();
+        }
     };
 
     const onPlayerStateChange = (event: any) => {
@@ -34,6 +40,8 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
 
     const initPlayer = () => {
         if (playerRef.current) return;
+        
+        const currentOrigin = window.location.origin || 'nui://spz-loading';
         
         new window.YT.Player('yt-player', {
             host: 'https://www.youtube.com',
@@ -50,6 +58,8 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
                 rel: 0,
                 showinfo: 0,
                 mute: 1,
+                origin: currentOrigin,
+                widget_referrer: currentOrigin
             },
             events: {
                 onReady: onPlayerReady,
@@ -59,7 +69,12 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
     };
 
     useEffect(() => {
-        if (!window.YT) {
+        // Define standard global callback first to prevent race condition
+        window.onYouTubeIframeAPIReady = () => {
+            initPlayer();
+        };
+
+        if (!window.YT || !window.YT.Player) {
             const tag = document.createElement('script');
             tag.src = "https://www.youtube.com/iframe_api";
             const firstScriptTag = document.getElementsByTagName('script')[0];
@@ -68,15 +83,17 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
             } else {
                 document.head.appendChild(tag);
             }
-            
-            window.onYouTubeIframeAPIReady = initPlayer;
-        } else if (window.YT && window.YT.Player) {
+        } else {
             initPlayer();
         }
 
         return () => {
             if (playerRef.current) {
-                playerRef.current.destroy();
+                try {
+                    playerRef.current.destroy();
+                } catch (e) {
+                    console.error("Error destroying YT player:", e);
+                }
                 playerRef.current = null;
             }
         };
