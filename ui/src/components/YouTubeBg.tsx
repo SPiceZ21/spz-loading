@@ -40,27 +40,51 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
 
     const initPlayer = () => {
         if (playerRef.current) return;
-        
-        const currentOrigin = window.location.origin || 'nui://spz-loading';
-        
-        new window.YT.Player('yt-player', {
-            host: 'https://www.youtube.com',
-            videoId: config.videoId || 'vHAsZ2hOltg',
-            playerVars: {
-                autoplay: 1,
-                controls: 0,
-                disablekb: 1,
-                enablejsapi: 1,
-                fs: 0,
-                iv_load_policy: 3,
-                loop: 1,
-                modestbranding: 1,
-                rel: 0,
-                showinfo: 0,
-                mute: 1,
-                origin: currentOrigin,
-                widget_referrer: currentOrigin
-            },
+
+        const videoId = config.videoId || 'vHAsZ2hOltg';
+
+        // YouTube error 153 = embed request arrived without a valid HTTP
+        // referrer. CEF loadscreens don't send one by default, and a
+        // non-http(s) origin (nui://…) is rejected outright. Fix:
+        //   1. build the <iframe> ourselves with referrerpolicy="origin"
+        //      so Chromium attaches an Origin-based Referer header
+        //   2. only pass origin/widget_referrer when it's real http(s)
+        const pageOrigin = window.location.origin || '';
+        const isHttp = /^https?:/i.test(pageOrigin);
+
+        const params = new URLSearchParams({
+            autoplay: '1',
+            controls: '0',
+            disablekb: '1',
+            enablejsapi: '1',
+            fs: '0',
+            iv_load_policy: '3',
+            loop: '1',
+            playlist: videoId,        // required for loop=1 to work
+            modestbranding: '1',
+            rel: '0',
+            mute: '1',
+        });
+        if (isHttp) {
+            params.set('origin', pageOrigin);
+            params.set('widget_referrer', pageOrigin);
+        }
+
+        const mount = document.getElementById('yt-player');
+        if (!mount) return;
+
+        const iframe = document.createElement('iframe');
+        iframe.id = 'yt-player-frame';
+        iframe.style.width = '100%';
+        iframe.style.height = '100%';
+        iframe.style.border = '0';
+        iframe.setAttribute('referrerpolicy', 'origin');
+        iframe.setAttribute('allow', 'autoplay; encrypted-media');
+        iframe.setAttribute('frameborder', '0');
+        iframe.src = `https://www.youtube.com/embed/${videoId}?${params.toString()}`;
+        mount.replaceChildren(iframe);
+
+        new window.YT.Player(iframe, {
             events: {
                 onReady: onPlayerReady,
                 onStateChange: onPlayerStateChange,
@@ -121,10 +145,7 @@ const YouTubeBg: React.FC<YouTubeBgProps> = ({ play, mute, volume }) => {
 
   return (
     <div className="video-background-container">
-      <div 
-        id="yt-player"
-        className="video-player-frame"
-      />
+      <div id="yt-player" className="video-player-frame" style={{ pointerEvents: 'none' }} />
       <div className="video-overlay" />
     </div>
   );
