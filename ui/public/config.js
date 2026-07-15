@@ -1,19 +1,12 @@
 window.LoadscreenConfig = {
-    // Media configuration
-    mediaType: 'youtube',
-    
-    // YouTube configuration
-    youtube: {
-        videoId: 'YeZrFMh6FiM',
+    // Local background videos live in ui/public/video, music in ui/public/audio
+    audio: {
         muted: false,
-        volume: 30,
-        showControls: true,
+        volume: 30,   // 0..100 default
     },
 
-    // UI Branding
+    // UI Branding (logo only — no text)
     branding: {
-        serverName: 'SPiceZ RACE CORE',
-        tagline: 'PREMIUM RACING EXPERIENCE',
         accentColor: '#FF6200',
     },
 

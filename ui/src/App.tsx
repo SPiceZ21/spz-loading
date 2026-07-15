@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useFiveM } from './hooks/useFiveM';
-import YouTubeBg from './components/YouTubeBg';
+import MediaBg from './components/MediaBg';
 import Branding from './components/Branding';
 import ProgressBar from './components/ProgressBar';
 import Controls from './components/Controls';
@@ -9,33 +9,35 @@ import Controls from './components/Controls';
 const App: React.FC = () => {
   const { progress, logLine } = useFiveM();
   const config = window.LoadscreenConfig || {};
-  
+
   // Player state
   const [playing, setPlaying] = useState(true);
-  const [muted, setMuted] = useState(config.youtube?.muted ?? false);
-  const volume = config.youtube?.volume ?? 30;
+  const [muted, setMuted] = useState(config.audio?.muted ?? false);
+  const [volume, setVolume] = useState<number>(config.audio?.volume ?? 30);
 
   return (
     <div className="app-container selection-accent">
-      <YouTubeBg 
+      <MediaBg
         play={playing}
-        mute={muted}
+        muted={muted}
         volume={volume}
       />
-      
+
       {/* Cinematic Overlays */}
       <div className="scanlines" />
       <div className="crt-overlay" />
-      
+
       {/* HUD Layer */}
       <div className="hud-layer">
         <div className="top-section">
           <Branding />
-          <Controls 
+          <Controls
             playing={playing}
             muted={muted}
+            volume={volume}
             onTogglePlay={() => setPlaying(!playing)}
             onToggleMute={() => setMuted(!muted)}
+            onVolume={(v) => { setVolume(v); if (v > 0 && muted) setMuted(false); }}
           />
         </div>
 
