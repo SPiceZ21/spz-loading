@@ -482,3 +482,46 @@ body {
   backdrop-filter: var(--hud-blur);
   border: 1px solid var(--hud-border);
 }
+/* ── Volume slider ─────────────────────────────────────────── */
+.volume-slider {
+  display: flex;
+  align-items: center;
+  height: 2.75rem;
+  padding: 0 0.85rem;
+  border-radius: 4px;
+}
+.volume-slider input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 90px;
+  height: 4px;
+  border-radius: 99px;
+  outline: none;
+  cursor: pointer;
+  background: linear-gradient(
+    to right,
+    var(--spz-orange) 0%,
+    var(--spz-orange) var(--fill, 30%),
+    rgba(255, 255, 255, 0.15) var(--fill, 30%),
+    rgba(255, 255, 255, 0.15) 100%
+  );
+}
+.volume-slider input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px var(--spz-orange-glow);
+  cursor: pointer;
+}
+.volume-slider input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+  border: none;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px var(--spz-orange-glow);
+  cursor: pointer;
+}
