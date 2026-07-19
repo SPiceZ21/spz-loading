@@ -115,62 +115,145 @@ body {
   align-items: flex-end;
 }
 
-/* Tips Component */
+/* Tips Component - modular card with timer rail + clickable navigation */
 .tips-container {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
   width: 100%;
-  max-width: 45rem; /* Center the tips box with a max-width */
-}
-
-.tips-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  font-family: var(--font-accent);
-  font-size: 0.6rem;
-  letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.3);
-  margin-bottom: -0.5rem;
+  max-width: 42rem;
 }
 
 .tips-small {
   display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
+  align-items: center;
+  gap: 0.6rem;
+  min-width: 0;   /* let the description shrink + wrap inside the flex row */
 }
 
-.tips-header-small {
+.tips-tag-small {
   font-family: var(--font-accent);
-  font-size: 0.65rem;
-  letter-spacing: 0.2em;
+  font-size: 0.6rem;
+  letter-spacing: 0.18em;
   color: var(--spz-orange);
   font-weight: 800;
-  text-transform: uppercase;
+  white-space: nowrap;
 }
 
 .tip-description-small {
   font-family: var(--font-accent);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 300;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.04em;
   color: rgba(255, 255, 255, 0.7);
-  max-width: 40rem;
+  /* full text, wrapping to at most 2 lines — no mid-sentence "…" cutoff */
+  white-space: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.4;
 }
 
 .tip-card {
-  background: var(--spz-surface);
-  backdrop-filter: var(--hud-blur);
-  border: 1px solid var(--spz-border);
-  padding: 2rem;
-  border-radius: 12px; /* Smoother corners */
   position: relative;
   overflow: hidden;
-  text-align: center; /* Center tip text */
+  background: var(--spz-surface);
+  border: 1px solid var(--spz-border);
+  border-left: 3px solid var(--spz-orange);
+  border-radius: 10px;
+  padding: 1.1rem 1.4rem 1.25rem;
+  text-align: left;
+}
+
+.tip-timer {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--spz-orange), rgba(255, 98, 0, 0.35));
+  transform-origin: left;
+}
+
+.tip-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.55rem;
+}
+
+.tip-tag {
+  font-family: var(--font-accent);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.22em;
+  color: var(--spz-orange);
+}
+
+.tip-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tip-arrow {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--spz-border);
+  border-radius: 5px;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 0.85rem;
+  line-height: 1;
+  width: 1.35rem;
+  height: 1.35rem;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+}
+.tip-arrow:hover {
+  color: #fff;
+  border-color: rgba(255, 98, 0, 0.5);
+  background: rgba(255, 98, 0, 0.12);
+}
+
+.tip-dots {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.tip-dot {
+  width: 0.4rem;
+  height: 0.4rem;
+  padding: 0;
+  border: none;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  cursor: pointer;
+  transition: background 0.2s, transform 0.2s;
+}
+.tip-dot:hover { background: rgba(255, 255, 255, 0.4); }
+.tip-dot.active {
+  background: var(--spz-orange);
+  transform: scale(1.25);
+}
+
+.tip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tip-title {
+  font-family: var(--font-accent);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: #fff;
+  text-transform: uppercase;
+}
+
+.tip-description {
+  font-size: 0.85rem;
+  font-weight: 300;
+  line-height: 1.55;
+  color: rgba(255, 255, 255, 0.65);
+  margin: 0;
 }
 
 /* Progress bar revamp to full width and new style */
