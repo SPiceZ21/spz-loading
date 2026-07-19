@@ -5,40 +5,41 @@ interface TipsProps {
     small?: boolean;
 }
 
+// Tip carousel. Auto-advances every `interval`; dots and arrows are clickable
+// (the loadscreen has a cursor). Manual navigation resets the timer.
 const Tips: React.FC<TipsProps> = ({ small }) => {
     const config = window.LoadscreenConfig?.tips || { items: [], interval: 5000 };
+    const total = config.items.length;
     const [index, setIndex] = useState(0);
 
     useEffect(() => {
-        if (!config.items.length) return;
-
-        const interval = setInterval(() => {
-            setIndex((prev) => (prev + 1) % config.items.length);
+        if (!total) return;
+        const t = setTimeout(() => {
+            setIndex((prev) => (prev + 1) % total);
         }, config.interval || 5000);
+        return () => clearTimeout(t);
+    }, [index, total, config.interval]);
 
-        return () => clearInterval(interval);
-    }, [config.items.length, config.interval]);
-
-    if (!config.items.length) return null;
+    if (!total) return null;
 
     const currentTip = config.items[index];
+    const next = () => setIndex((index + 1) % total);
+    const prev = () => setIndex((index - 1 + total) % total);
 
     if (small) {
         return (
             <div className="tips-small">
-                <div className="tips-header-small">
-                    Tips [{index + 1}/{config.items.length}]
-                </div>
+                <span className="tips-tag-small">TIP {index + 1}/{total}</span>
                 <AnimatePresence mode="wait">
-                    <motion.div
+                    <motion.span
                         key={index}
-                        initial={{ opacity: 0, x: -10 }}
+                        initial={{ opacity: 0, x: -8 }}
                         animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: 10 }}
+                        exit={{ opacity: 0, x: 8 }}
                         className="tip-description-small"
                     >
                         {currentTip.description}
-                    </motion.div>
+                    </motion.span>
                 </AnimatePresence>
             </div>
         );
@@ -46,47 +47,48 @@ const Tips: React.FC<TipsProps> = ({ small }) => {
 
     return (
         <div className="tips-container">
-            <div className="tips-header">
-                <span>Tips</span>
-                <span>[{index + 1}/{config.items.length}]</span>
-            </div>
-
-            <AnimatePresence mode="wait">
+            <div className="tip-card">
+                {/* timer rail along the top, restarts each tip */}
                 <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-                    className="tip-card"
-                >
-                    <div className="tip-content">
-                        <span className="tip-title">
-                            {currentTip.title}
-                        </span>
-                        <p className="tip-description">
-                            {currentTip.description}
-                        </p>
-                    </div>
+                    key={`bar-${index}`}
+                    className="tip-timer"
+                    initial={{ scaleX: 0 }}
+                    animate={{ scaleX: 1 }}
+                    transition={{ duration: (config.interval || 5000) / 1000, ease: 'linear' }}
+                />
 
-                    {/* Decorative bar */}
+                <div className="tip-head">
+                    <span className="tip-tag">TIP {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}</span>
+                    <div className="tip-nav">
+                        <button className="tip-arrow" onClick={prev} aria-label="Previous tip">‹</button>
+                        <div className="tip-dots">
+                            {config.items.map((_: unknown, i: number) => (
+                                <button
+                                    key={i}
+                                    className={`tip-dot ${i === index ? 'active' : ''}`}
+                                    onClick={() => setIndex(i)}
+                                    aria-label={`Tip ${i + 1}`}
+                                />
+                            ))}
+                        </div>
+                        <button className="tip-arrow" onClick={next} aria-label="Next tip">›</button>
+                    </div>
+                </div>
+
+                <AnimatePresence mode="wait">
                     <motion.div
-                        initial={{ scaleX: 0 }}
-                        animate={{ scaleX: 1 }}
-                        transition={{ duration: config.interval / 1000, ease: "linear" }}
-                        style={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            height: '2px',
-                            background: 'var(--spz-orange)',
-                            transformOrigin: 'left',
-                            opacity: 0.5
-                        }}
-                    />
-                </motion.div>
-            </AnimatePresence>
+                        key={index}
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -12 }}
+                        transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
+                        className="tip-content"
+                    >
+                        <span className="tip-title">{currentTip.title}</span>
+                        <p className="tip-description">{currentTip.description}</p>
+                    </motion.div>
+                </AnimatePresence>
+            </div>
         </div>
     );
 };
