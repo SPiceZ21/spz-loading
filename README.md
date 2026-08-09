@@ -1,31 +1,38 @@
-<div align="center">
-
-<img src="https://github.com/SPiceZ21/spz-core-media-kit/raw/main/Banner/Banner%232.png" alt="SPiceZ-Core Banner" width="100%"/>
-
-<br/>
-
 # spz-loading
-> Minimal Loading Screen · `v1.1.0`
 
-## NUI
+> Loading screen · `v1.2.1`
 
-**Stack:** Vite · Preact · TypeScript · spz-ui
+## Overview
 
-Features: YouTube background video, segmented progress bar, tips carousel.
+`spz-loading` replaces the default loading screen with a branded one: background video
+with an audio volume slider, a segmented progress bar driven by the client's load events,
+and a tips carousel. It is registered as a `loadscreen` with manual shutdown, so
+[spz-spawn](../spz-spawn/README.md) decides when it disappears.
 
-> Note: registered as a `loadscreen` (not `ui_page`).
+## Structure
 
+| Path | Purpose |
+|---|---|
+| `fxmanifest.lua` | `loadscreen` registration, manual shutdown, cursor enabled |
+| `ui/src/App.tsx` | Screen composition |
+| `ui/src/components/MediaBg.tsx` | Background video and audio |
+| `ui/src/components/ProgressBar.tsx` | Segmented load progress |
+| `ui/src/components/Tips.tsx` | Tips carousel |
+| `ui/src/components/Controls.tsx` | Volume and tip navigation |
+| `ui/src/components/Branding.tsx` | Logo and server name |
+| `ui/src/hooks/useFiveM.ts` | Load-event bridge |
+| `ui/public/config.js` | Runtime config — edit without rebuilding |
+
+## Build
+
+```bash
+cd ui && npm install && npm run build   # → ui/dist/index.html
 ```
-ui/
-├── src/
-│   ├── app.tsx
-│   ├── components/       # spz-ui components
-│   └── styles/
-└── dist/                 # built output (served by FiveM)
-    └── index.html
-```
 
-Build: `cd ui && npm run build`
+## Dependencies
 
-## CI
-Built and released via `.github/workflows/release.yml` on push to `main`.
+None.
+
+---
+
+Part of [SPiceZ-Core](../README.md) · GPL-3.0
