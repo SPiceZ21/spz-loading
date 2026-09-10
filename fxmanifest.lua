@@ -3,7 +3,7 @@ game 'gta5'
 
 name 'spz-loadscreen'
 description 'SPiceZ-Core — Minimal Loading Screen'
-version '1.2.1'
+version '1.3.0'
 author 'SPiceZ-Core'
 
 loadscreen 'ui/dist/index.html'
