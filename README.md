@@ -22,6 +22,7 @@ and a tips carousel. It is registered as a `loadscreen` with manual shutdown, so
 | `ui/src/components/Branding.tsx` | Logo and server name |
 | `ui/src/hooks/useFiveM.ts` | Load-event bridge |
 | `ui/src/theme.ts` | Applies the server.cfg theme as CSS variables |
+| `server/main.lua` | Answers the client's request for the theme |
 | `ui/public/config.js` | Runtime config — edit without rebuilding |
 
 ## Theme
@@ -30,23 +31,35 @@ The screen paints in the server's colours, from the same `spz_theme_*` convars e
 SPiceZ UI reads — one server.cfg block re-skins the loading screen along with the rest.
 
 ```cfg
-setr spz_theme_accent  "#ff6200"
-setr spz_theme_accent2 "#ff9142"
-setr spz_theme_bg      "#060608"
-setr spz_theme_bg2     "#0a0b0f"
+set spz_theme_accent  "#ff6200"
+set spz_theme_accent2 "#ff9142"
+set spz_theme_bg      "#060608"
+set spz_theme_bg2     "#0a0b0f"
 ```
 
-`setr`, not `set`. Every other UI gets the theme from spz-core's `SPZ:theme` push, which is
-no use here: it is sent at `playerConnected`, while this client still has no scripts running
-to receive it, and the screen has been painted for seconds by the time a later push lands.
-Replicated convars are already on the client when `client/main.lua` runs its first line, so
-it reads them with `GetConvar` and posts them into the frame directly.
+Getting them here is awkward, because the screen is painted before the usual route exists:
+spz-core pushes `SPZ:theme` at `playerConnected`, which lands while the client still has no
+scripts running to receive it. So `client/main.lua` asks from two directions and takes
+whichever answers first:
+
+| Route | When it works | Cost |
+|---|---|---|
+| `GetConvar` on the client | Only if the convars are `setr` (replicated) | Instant, no round trip |
+| `spz-loading:requestTheme` → `server/main.lua` | Either `set` or `setr` | One round trip, retried until answered |
+
+**`set` is enough.** The server route exists so that theming the loading screen does not
+require migrating a working server.cfg to `setr`. Using `setr` just skips the round trip.
+The server answers from spz-core's live theme, so `/spz reloadtheme` changes are picked up
+by the next player to connect.
+
+The client prints `[spz-loading] Theme from <route>` once on success, and a warning naming
+what to check if nothing answered — both visible in F8 after joining.
 
 Hex only — `#rrggbb` or `#rgb`, with or without the `#`. A convar that is unset or
 malformed is skipped rather than substituted, so that colour keeps the value compiled into
 `ui/src/index.css`; `ui/public/config.js` holds the same values for the browser preview.
-Changing a colour needs no rebuild, but it does need a reconnect: a loading screen is only
-read once, so `/spz reloadtheme` (which re-skins every live UI) cannot reach it.
+Changing a colour needs no rebuild, but it does need a reconnect: a loading screen is read
+once, so a live re-skin cannot reach it.
 
 ## Build
 

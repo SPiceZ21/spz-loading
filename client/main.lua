@@ -44,47 +44,123 @@ end
 -- ── Theme ─────────────────────────────────────────────────────────────────
 --
 -- The screen paints in server.cfg's colours — the same `spz_theme_*` convars
--- every other SPiceZ UI reads, so one config line re-skins the loading screen
+-- every other SPiceZ UI reads, so one config block re-skins the loading screen
 -- along with the rest.
 --
--- It cannot take the route the others take. spz-core pushes `SPZ:theme` at
--- playerConnected, which lands while this client still has no scripts running
--- to catch it, and any later push arrives long after the screen has been
--- painted. Replicated convars have no ordering problem: the values are already
--- on the client when the first line of this file runs.
+-- Getting them here is the awkward part, because the screen is painted before
+-- the usual route exists. spz-core pushes `SPZ:theme` at playerConnected, which
+-- lands while this client still has no scripts running to catch it. So this
+-- asks for the theme from two directions and takes whichever arrives:
 --
--- That is why server.cfg uses `setr` for these and not `set`. A plain `set` is
--- server-only, GetConvar here would return the fallback, and the loading screen
--- would sit orange in front of a server themed something else.
+--   1. Replicated convars. `setr spz_theme_*` is already on the client when the
+--      first line of this file runs — instant, no round trip. Silent no-op if
+--      the server uses a plain `set`, which is server-only.
+--   2. A request to our own server script. Works whichever of `set` / `setr` the
+--      server.cfg uses, which matters because most servers have these on `set`
+--      and the loading screen is not worth a server.cfg migration to theme.
+--
+-- Whichever lands first paints; the other repaints the same values over it. The
+-- screen is up for seconds waiting on a profile and on world streaming, so the
+-- round trip is never the thing holding it up.
+
 local THEME_KEYS = { 'accent', 'accent2', 'bg', 'bg2', 'danger', 'gold' }
 
---- Send the convars that are actually set. An unset one is deliberately left
---- out rather than sent as a default, so the UI keeps its own compiled palette
---- instead of being repainted in spz-core's defaults.
-local function PostTheme()
-    local theme, any = {}, false
+-- The theme in force, kept so it can be reposted. Posting into the frame is
+-- one-way with no acknowledgement, and the frame may not have attached its
+-- listener yet — client scripts start while the loading screen is still loading
+-- its own bundle, and a message sent into that gap is silently dropped. Sending
+-- it again for a few seconds is cheaper than building a handshake for a surface
+-- that lives fifteen seconds.
+local theme     = nil
+local themeRank = 0
+local reposts   = 0
 
+-- Which source a theme came from. The convars are the fast path but can be
+-- stale or half-set; the server's answer is authoritative (it comes from
+-- spz-core, so it carries `/spz reloadtheme` changes that never touched a
+-- convar), and is allowed to replace them. Nothing replaces the server.
+local RANK = { ['convars (setr)'] = 1, ['spz-core'] = 2, ['server'] = 2 }
+
+--- Take a theme if it beats what we already have. Keys the server did not set
+--- are dropped rather than filled with a default, so each one it leaves alone
+--- keeps the value compiled into the UI's own CSS.
+local function SetTheme(incoming, origin)
+    if finished or type(incoming) ~= 'table' then return end
+
+    local rank = RANK[origin] or 0
+    if theme and rank <= themeRank then return end
+
+    local out, any = {}, false
     for _, key in ipairs(THEME_KEYS) do
-        local v = GetConvar('spz_theme_' .. key, '')
-        if v ~= '' then
-            theme[key] = v
+        local v = incoming[key]
+        if type(v) == 'string' and v ~= '' then
+            out[key] = v
             any = true
         end
     end
-
     if not any then return end
-    Post({ eventName = 'spzTheme', theme = theme })
+
+    theme, themeRank, reposts = out, rank, 0
+
+    -- Posted here as well as from the loop below, so a reply that arrives after
+    -- the loop has finished reposting still paints.
+    Post({ eventName = 'spzTheme', theme = out })
+
+    -- Without this line, "the loading screen is the wrong colour" is a question
+    -- with no way to answer it short of adding it back.
+    print(('^2[spz-loading] Theme from %s^7'):format(origin))
 end
 
--- Repeated for the first few seconds because this is a one-way post into a
--- frame that may not have attached its listener yet: client scripts start while
--- the loading screen page is still loading its own bundle, and a message sent
--- into that gap is simply dropped. Applying the same theme twice costs nothing.
+--- Route 1: replicated convars, read straight off the client. Instant and with
+--- no round trip when server.cfg uses `setr`; empty when it uses a plain `set`,
+--- which is server-only.
+local function ConvarTheme()
+    local out = {}
+    for _, key in ipairs(THEME_KEYS) do
+        local v = GetConvar('spz_theme_' .. key, '')
+        if v ~= '' then out[key] = v end
+    end
+    return out
+end
+
+-- Route 2's reply, plus spz-core's own push on the chance it lands while the
+-- screen is still up. Both are the same theme arriving from another direction.
+RegisterNetEvent('spz-loading:theme', function(t) SetTheme(t, 'server') end)
+RegisterNetEvent('SPZ:theme',         function(t) SetTheme(t, 'spz-core') end)
+
 CreateThread(function()
-    for _ = 1, 12 do
-        if finished then return end
-        PostTheme()
+    SetTheme(ConvarTheme(), 'convars (setr)')
+
+    -- Bounded by the watchdog that takes the screen down anyway, so this can
+    -- never outlive the thing it is painting.
+    local deadline    = GetGameTimer() + 20000
+    local nextRequest = 0
+
+    while not finished and GetGameTimer() < deadline do
+        if theme then
+            -- Repeated past the point it can plausibly still be missed, then
+            -- left alone: the frame has it, and the screen is not worth a
+            -- message every quarter second for its whole life.
+            if reposts < 12 then
+                reposts = reposts + 1
+                Post({ eventName = 'spzTheme', theme = theme })
+            else
+                return
+            end
+        elseif GetGameTimer() >= nextRequest then
+            -- Asked repeatedly for the reason spz-spawn retries its own
+            -- handshake: this runs as the client is still connecting, and the
+            -- earliest attempts can be made before the server will hear them.
+            TriggerServerEvent('spz-loading:requestTheme')
+            nextRequest = GetGameTimer() + 1000
+        end
+
         Wait(250)
+    end
+
+    if not theme and not finished then
+        print('^3[spz-loading] No theme received — the screen is using its built-in palette. ' ..
+              'Check spz_theme_* in server.cfg and that spz-loading/server/main.lua is running.^7')
     end
 end)
 

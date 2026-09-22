@@ -93,8 +93,18 @@ export function applyTheme(theme: SpzTheme | null | undefined): void {
  */
 export function initTheme(): void {
   window.addEventListener('message', (event: MessageEvent) => {
-    const data = event.data ?? {};
-    if (data.eventName === 'spzTheme') applyTheme(data.theme as SpzTheme);
+    // SendLoadingScreenMessage delivers the decoded object, but tolerate the
+    // raw JSON string too: it costs three lines, and the alternative failure is
+    // a screen that silently ignores every theme it is sent.
+    let data = event.data;
+    if (typeof data === 'string') {
+      try {
+        data = JSON.parse(data);
+      } catch {
+        return;
+      }
+    }
+    if (data?.eventName === 'spzTheme') applyTheme(data.theme as SpzTheme);
   });
 
   // No server behind us (`npm run dev`, or a server with spz-loading's client

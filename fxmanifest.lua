@@ -16,6 +16,12 @@ client_scripts {
   'client/main.lua',
 }
 
+-- Answers the client's request for the server.cfg theme. See server/main.lua:
+-- the screen is painted before any push from spz-core could reach it.
+server_scripts {
+  'server/main.lua',
+}
+
 files {
   'ui/dist/index.html',
   'ui/dist/**/*',
