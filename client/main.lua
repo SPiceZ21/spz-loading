@@ -41,6 +41,53 @@ local function Post(payload)
     pcall(SendLoadingScreenMessage, json.encode(payload))
 end
 
+-- ── Theme ─────────────────────────────────────────────────────────────────
+--
+-- The screen paints in server.cfg's colours — the same `spz_theme_*` convars
+-- every other SPiceZ UI reads, so one config line re-skins the loading screen
+-- along with the rest.
+--
+-- It cannot take the route the others take. spz-core pushes `SPZ:theme` at
+-- playerConnected, which lands while this client still has no scripts running
+-- to catch it, and any later push arrives long after the screen has been
+-- painted. Replicated convars have no ordering problem: the values are already
+-- on the client when the first line of this file runs.
+--
+-- That is why server.cfg uses `setr` for these and not `set`. A plain `set` is
+-- server-only, GetConvar here would return the fallback, and the loading screen
+-- would sit orange in front of a server themed something else.
+local THEME_KEYS = { 'accent', 'accent2', 'bg', 'bg2', 'danger', 'gold' }
+
+--- Send the convars that are actually set. An unset one is deliberately left
+--- out rather than sent as a default, so the UI keeps its own compiled palette
+--- instead of being repainted in spz-core's defaults.
+local function PostTheme()
+    local theme, any = {}, false
+
+    for _, key in ipairs(THEME_KEYS) do
+        local v = GetConvar('spz_theme_' .. key, '')
+        if v ~= '' then
+            theme[key] = v
+            any = true
+        end
+    end
+
+    if not any then return end
+    Post({ eventName = 'spzTheme', theme = theme })
+end
+
+-- Repeated for the first few seconds because this is a one-way post into a
+-- frame that may not have attached its listener yet: client scripts start while
+-- the loading screen page is still loading its own bundle, and a message sent
+-- into that gap is simply dropped. Applying the same theme twice costs nothing.
+CreateThread(function()
+    for _ = 1, 12 do
+        if finished then return end
+        PostTheme()
+        Wait(250)
+    end
+end)
+
 --- Report where boot has got to. Drives the second-phase progress bar.
 --- @param key string one of STAGES
 --- @param label string? overrides the default label (e.g. a retry count)

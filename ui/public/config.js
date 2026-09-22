@@ -5,9 +5,18 @@ window.LoadscreenConfig = {
         volume: 30,   // 0..100 default
     },
 
-    // UI Branding (logo only — no text)
+    // UI Branding (logo only — no text).
+    //
+    // FALLBACK ONLY. On a live server the colours come from server.cfg's
+    // `setr spz_theme_*` convars, which spz-loading reads on the client and
+    // posts in; they overwrite anything set here. These values are what the
+    // browser preview (`npm run dev`) uses, and what a server that sets no
+    // theme convars falls back to. Hex only.
     branding: {
-        accentColor: '#FF6200',
+        accentColor: '#FF6200',   // spz_theme_accent
+        accent2Color: '#FF9142',  // spz_theme_accent2
+        bgColor: '#07080A',       // spz_theme_bg
+        bg2Color: '#0E1014',      // spz_theme_bg2
     },
 
     // Auto-sliding Tips

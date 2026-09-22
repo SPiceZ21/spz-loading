@@ -22,11 +22,23 @@
 }
 
 :root {
-  /* Premium Design System — SPZ Palette */
+  /* Premium Design System — SPZ Palette.
+     These are FALLBACKS. The live values come from server.cfg (`setr
+     spz_theme_*`) and are written over this block at runtime — see src/theme.ts.
+     A server that sets nothing gets exactly what is compiled here.
+
+     The `-rgb` triplets exist so the rgba() slots below can take an alpha off
+     the same themed colour instead of hardcoding the orange a second time. */
   --spz-orange: #FF6200;
-  --spz-orange-glow: rgba(255, 98, 0, 0.4);
+  --spz-orange-rgb: 255, 98, 0;
+  --spz-orange-glow: rgba(var(--spz-orange-rgb), 0.4);
+  --spz-accent2: #FF9142;
   --spz-bg: #07080A;
-  --spz-surface: rgba(14, 16, 20, 0.85);
+  --spz-bg2: #0E1014;
+  --spz-bg2-rgb: 14, 16, 20;
+  --spz-surface: rgba(var(--spz-bg2-rgb), 0.85);
+  --spz-danger: #FF4D5E;
+  --spz-gold: #F59E0B;
   --spz-border: rgba(255, 255, 255, 0.08);
   --spz-line: rgba(255, 255, 255, 0.04);
 
@@ -169,7 +181,7 @@ body {
   position: absolute;
   top: 0; left: 0; right: 0;
   height: 2px;
-  background: linear-gradient(90deg, var(--spz-orange), rgba(255, 98, 0, 0.35));
+  background: linear-gradient(90deg, var(--spz-orange), rgba(var(--spz-orange-rgb), 0.35));
   transform-origin: left;
 }
 
@@ -208,8 +220,8 @@ body {
 }
 .tip-arrow:hover {
   color: #fff;
-  border-color: rgba(255, 98, 0, 0.5);
-  background: rgba(255, 98, 0, 0.12);
+  border-color: rgba(var(--spz-orange-rgb), 0.5);
+  background: rgba(var(--spz-orange-rgb), 0.12);
 }
 
 .tip-dots {
@@ -304,7 +316,7 @@ body {
 
 .bar-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--spz-orange), #FF8C00);
+  background: linear-gradient(90deg, var(--spz-orange), var(--spz-accent2));
   box-shadow: 0 0 20px var(--spz-orange-glow);
   transition: width 0.5s var(--ease-out-expo);
 }
@@ -463,7 +475,7 @@ body {
 }
 
 .selection-accent::selection {
-  background-color: rgba(255, 98, 0, 0.3);
+  background-color: rgba(var(--spz-orange-rgb), 0.3);
 }
 
 .hud-layer {
