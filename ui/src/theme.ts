@@ -1,6 +1,9 @@
 /*
  * theme.ts — the loading screen's colours come from server.cfg, not this bundle.
  *
+ * First paint comes from `window.nuiHandoverData.spzTheme` (server-side
+ * deferrals.handover at playerConnecting), which exists before the first frame.
+ *
  * `setr spz_theme_accent "#ff6200"` (and friends) makes the theme convars
  * REPLICATED, which is the whole trick: spz-loading/client/main.lua can read
  * them with GetConvar the instant client scripts start and post them straight
@@ -86,6 +89,41 @@ export function applyTheme(theme: SpzTheme | null | undefined): void {
   }
 }
 
+/*
+ * Last theme this client was sent, kept in localStorage.
+ *
+ * The screen is painted seconds before client scripts exist to post a theme
+ * into it, so the first frames can only use what is already in the page. Until
+ * this cache existed that meant the compiled orange, and every join showed the
+ * screen changing colour mid-load once the real theme landed.
+ *
+ * The cache is per player and only ever one join behind. A server that
+ * re-themes shows the old colours for one load and is correct from then on —
+ * a far smaller wrong than starting every load on a colour the server has
+ * never used. Wrapped in try/catch throughout: storage can be unavailable or
+ * full, and a loading screen must never fail to load over its own paint job.
+ */
+const CACHE_KEY = 'spz.loading.theme';
+
+function readCachedTheme(): SpzTheme | null {
+  try {
+    const raw = localStorage.getItem(CACHE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === 'object' ? (parsed as SpzTheme) : null;
+  } catch {
+    return null;
+  }
+}
+
+function cacheTheme(theme: SpzTheme): void {
+  try {
+    localStorage.setItem(CACHE_KEY, JSON.stringify(theme));
+  } catch {
+    /* storage disabled or full — the screen still themed itself this session */
+  }
+}
+
 /**
  * Start listening. Called once from main.tsx, before React mounts, so the first
  * painted frame already carries the server's colours when the message beat us
@@ -104,11 +142,19 @@ export function initTheme(): void {
         return;
       }
     }
-    if (data?.eventName === 'spzTheme') applyTheme(data.theme as SpzTheme);
+    if (data?.eventName === 'spzTheme') {
+      const theme = data.theme as SpzTheme;
+      applyTheme(theme);
+      // Remembered for the NEXT load, which is the one it can paint in time.
+      cacheTheme(theme);
+    }
   });
 
-  // No server behind us (`npm run dev`, or a server with spz-loading's client
-  // script missing): fall back to config.js so the preview is still brandable.
+  // Weakest source first, strongest last — each call only overwrites the keys
+  // it actually carries, so this is a layering, not a race.
+  //
+  // 1. config.js branding. No server behind us (`npm run dev`, or a server with
+  //    spz-loading's client script missing), so the preview is still brandable.
   const branding = window.LoadscreenConfig?.branding;
   if (branding) {
     applyTheme({
@@ -117,5 +163,21 @@ export function initTheme(): void {
       bg: branding.bgColor,
       bg2: branding.bg2Color,
     });
+  }
+
+  // 2. What the server sent last time. Applied synchronously, before React
+  //    mounts, so the first painted frame is already the server's colours and
+  //    the live theme arriving later is a no-op rather than a visible flip.
+  const cached = readCachedTheme();
+  if (cached) applyTheme(cached);
+
+  // 3. This join's theme, handed over by spz-loading/server/main.lua at
+  //    playerConnecting. It is in the page before the first frame, so this is
+  //    what actually paints the screen from 0% — client scripts (and the
+  //    `spzTheme` messages above) don't start until ~65% of the load.
+  const handover = window.nuiHandoverData?.spzTheme;
+  if (handover) {
+    applyTheme(handover);
+    cacheTheme(handover);
   }
 }

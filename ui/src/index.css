@@ -412,8 +412,16 @@ body {
   justify-content: center;
 }
 
+/*
+ * Logo size follows the screen height (5.5vh ≈ 59px at 1080p, 79px at 1440p)
+ * with a floor for small windows and a ceiling for 4K, and is capped on width
+ * so a very wide logo can't run into the controls on the right.
+ * --logo-scale comes from config.js `branding.logoScale` (default 1).
+ */
 .branding-logo {
-  height: 1.8rem;
+  --logo-h: clamp(3rem, 5.5vh, 6.5rem);
+  height: calc(var(--logo-h) * var(--logo-scale, 1));
+  max-width: 38vw;
   width: auto;
   object-fit: contain;
   filter: drop-shadow(0 0 20px var(--spz-orange-glow));
@@ -424,8 +432,9 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 8rem;
-  height: 8rem;
+  /* Scales with the logo so the glow still sits behind it at any size. */
+  width: calc(clamp(3rem, 5.5vh, 6.5rem) * var(--logo-scale, 1) * 2.4);
+  height: calc(clamp(3rem, 5.5vh, 6.5rem) * var(--logo-scale, 1) * 2.4);
   background-color: var(--spz-orange-glow);
   filter: blur(40px);
   border-radius: 9999px;

@@ -32,6 +32,20 @@ local function GetTheme()
     return theme
 end
 
+-- The fix for the screen painting in the compiled orange until ~65%: client
+-- scripts only start once resources have loaded, so everything the client file
+-- posts arrives late. Handover data is different — FiveM injects it into the
+-- loading screen page as `window.nuiHandoverData` before its first frame, so
+-- the screen reads server.cfg's colours on load. The client-side route below
+-- stays as a backstop (and carries `/spz reloadtheme` changes mid-load).
+--
+-- No defer() needed: handover only has to land before the connection is let
+-- through, and spz-core's own deferral is still open when this runs.
+AddEventHandler('playerConnecting', function(_, _, deferrals)
+    local theme = GetTheme()
+    if next(theme) then deferrals.handover({ spzTheme = theme }) end
+end)
+
 RegisterNetEvent('spz-loading:requestTheme', function()
     local src = source
     local theme = GetTheme()

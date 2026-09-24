@@ -17,6 +17,10 @@ window.LoadscreenConfig = {
         accent2Color: '#FF9142',  // spz_theme_accent2
         bgColor: '#07080A',       // spz_theme_bg
         bg2Color: '#0E1014',      // spz_theme_bg2
+
+        // Logo size. The logo already scales with screen height; this multiplies
+        // that. 1 = default, 1.5 = half again bigger, 0.8 = smaller (0.5 – 2.5).
+        logoScale: 1,
     },
 
     // Auto-sliding Tips
