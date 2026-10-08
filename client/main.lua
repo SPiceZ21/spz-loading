@@ -194,7 +194,6 @@ end
 
 exports('Stage', Stage)
 exports('Finish', Finish)
-exports('IsFinished', function() return finished end)
 
 -- ── Watchdog ──────────────────────────────────────────────────────────────────
 --
