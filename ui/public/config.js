@@ -18,6 +18,9 @@ window.LoadscreenConfig = {
         bgColor: '#07080A',       // spz_theme_bg
         bg2Color: '#0E1014',      // spz_theme_bg2
 
+        // Logo file in ui/public/Logo/ (just the filename), or a full URL.
+        logo: 'logo.png',
+
         // Logo size. The logo already scales with screen height; this multiplies
         // that. 1 = default, 1.5 = half again bigger, 0.8 = smaller (0.5 – 2.5).
         logoScale: 1,

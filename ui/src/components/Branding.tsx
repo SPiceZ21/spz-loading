@@ -8,6 +8,14 @@ const logoScale = (() => {
     return Number.isFinite(v) && v > 0 ? Math.min(Math.max(v, 0.5), 2.5) : 1;
 })();
 
+// config.js `branding.logo` — file in ui/public/Logo/ (or any URL). Swap the
+// logo by dropping a new file in that folder and naming it here.
+const logoSrc = (() => {
+    const v = window.LoadscreenConfig?.branding?.logo;
+    if (typeof v !== 'string' || !v.trim()) return './Logo/logo.png';
+    return /^(https?:)?\/\/|^\.?\//.test(v) ? v : `./Logo/${v}`;
+})();
+
 const Branding: React.FC = () => {
     return (
         <motion.div
@@ -19,7 +27,7 @@ const Branding: React.FC = () => {
         >
             <div className="logo-section">
                 <img
-                    src="./Logo/long_spz_transparent.png"
+                    src={logoSrc}
                     alt="Logo"
                     className="branding-logo"
                 />
