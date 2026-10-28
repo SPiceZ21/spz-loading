@@ -190,10 +190,16 @@ local function Finish()
 
     ShutdownLoadingScreen()
     ShutdownLoadingScreenNui()
+
+    -- Other resources' NUI pages draw ON TOP of the loading screen as soon as
+    -- they load, so race standings and chat showed through it. They stay hidden
+    -- until this fires (spz-raceUI, spz-chat).
+    TriggerEvent('spz-loading:finished')
 end
 
 exports('Stage', Stage)
 exports('Finish', Finish)
+exports('IsFinished', function() return finished end)
 
 -- ── Watchdog ──────────────────────────────────────────────────────────────────
 --
