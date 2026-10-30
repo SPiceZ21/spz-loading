@@ -1,76 +1,47 @@
 # spz-loading
 
-> Loading screen · `v1.2.1`
+> Themed loading screen with real boot progress.
+
+![version](https://img.shields.io/badge/version-1.7.0-ff6200) ![SPiceZ-Core](https://img.shields.io/badge/SPiceZ--Core-beta-18181b)
 
 ## Overview
 
-`spz-loading` replaces the default loading screen with a branded one: background video
-with an audio volume slider, a segmented progress bar driven by the client's load events,
-and a tips carousel. It is registered as a `loadscreen` with manual shutdown, so
-[spz-spawn](../spz-spawn/README.md) decides when it disappears.
+A minimal loading screen in the server theme. After the game loads it shows the second phase too — contacting the server, loading the profile, streaming the world — and owns taking the screen down, with a watchdog so it can never hang.
 
-## Structure
+## Features
 
-| Path | Purpose |
-|---|---|
-| `fxmanifest.lua` | `loadscreen` registration, manual shutdown, cursor enabled |
-| `ui/src/App.tsx` | Screen composition |
-| `ui/src/components/MediaBg.tsx` | Background video and audio |
-| `ui/src/components/ProgressBar.tsx` | Segmented load progress |
-| `ui/src/components/Tips.tsx` | Tips carousel |
-| `ui/src/components/Controls.tsx` | Volume and tip navigation |
-| `ui/src/components/Branding.tsx` | Logo and server name |
-| `ui/src/hooks/useFiveM.ts` | Load-event bridge |
-| `ui/src/theme.ts` | Applies the server.cfg theme as CSS variables |
-| `server/main.lua` | Answers the client's request for the theme |
-| `ui/public/config.js` | Runtime config — edit without rebuilding |
+- Two-phase progress (engine load + SPZ boot stages)
+- Theme from `spz_theme_*` convars
+- Watchdog that reports which stage stalled
+- `spz-loading:finished` event so other UIs stay hidden until it is down
 
-## Theme
+## Requirements
 
-The screen paints in the server's colours, from the same `spz_theme_*` convars every other
-SPiceZ UI reads — one server.cfg block re-skins the loading screen along with the rest.
+None — runs on its own.
+
+## Installation
+
+Included in the [txAdmin recipe](https://github.com/SPiceZ21/spz-txrecipe). Manual install:
+
+1. Download `spz-loading` from GitHub (latest release, or the repository) into your `resources` folder.
+2. Add to `server.cfg`:
 
 ```cfg
-set spz_theme_accent  "#ff6200"
-set spz_theme_accent2 "#ff9142"
-set spz_theme_bg      "#060608"
-set spz_theme_bg2     "#0a0b0f"
+ensure spz-loading
 ```
 
-Getting them here is awkward, because the screen is painted before the usual route exists:
-spz-core pushes `SPZ:theme` at `playerConnected`, which lands while the client still has no
-scripts running to receive it. So `client/main.lua` asks from two directions and takes
-whichever answers first:
+## Exports
 
-| Route | When it works | Cost |
-|---|---|---|
-| `GetConvar` on the client | Only if the convars are `setr` (replicated) | Instant, no round trip |
-| `spz-loading:requestTheme` → `server/main.lua` | Either `set` or `setr` | One round trip, retried until answered |
+| Export | Side |
+|---|---|
+| `Finish` | client |
+| `IsFinished` | client |
+| `Stage` | client |
 
-**`set` is enough.** The server route exists so that theming the loading screen does not
-require migrating a working server.cfg to `setr`. Using `setr` just skips the round trip.
-The server answers from spz-core's live theme, so `/spz reloadtheme` changes are picked up
-by the next player to connect.
-
-The client prints `[spz-loading] Theme from <route>` once on success, and a warning naming
-what to check if nothing answered — both visible in F8 after joining.
-
-Hex only — `#rrggbb` or `#rgb`, with or without the `#`. A convar that is unset or
-malformed is skipped rather than substituted, so that colour keeps the value compiled into
-`ui/src/index.css`; `ui/public/config.js` holds the same values for the browser preview.
-Changing a colour needs no rebuild, but it does need a reconnect: a loading screen is read
-once, so a live re-skin cannot reach it.
-
-## Build
-
-```bash
-cd ui && npm install && npm run build   # → ui/dist/index.html
+```lua
+exports["spz-loading"]:Finish(...)
 ```
-
-## Dependencies
-
-None.
 
 ---
 
-Part of [SPiceZ-Core](../README.md) · GPL-3.0
+Part of **SPiceZ-Core** — [documentation](https://github.com/SPiceZ21/Docs) · [all modules](https://github.com/SPiceZ21/Docs/blob/main/modules/README.md)
